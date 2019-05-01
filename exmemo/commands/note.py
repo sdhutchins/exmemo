@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 
+import os
 from . import cli
-from .. import Workspace
+from .. import Workspace, WorkspaceNotFound
 from pprint import pprint
 
 @cli.priority(30)
@@ -20,7 +21,7 @@ def new():
     """
     args = cli.parse_args_via_docopt()
     work = Workspace.from_cwd()
-
+    
     work.init_experiment(args['<title>'])
 
 @cli.priority(30)

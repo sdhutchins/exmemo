@@ -255,7 +255,7 @@ class Workspace:
         from click.exceptions import Abort
 
         url = self.config.get('cookiecutter_url') or cookiecutter_path
-
+        
         try:
             cookiecutter(str(url), extra_context={
                     'project_title': title,
@@ -272,7 +272,7 @@ class Workspace:
         if not os.path.isdir(expt):
             expt.mkdir()
         else:
-            sys.exit('Experiment exists. Use exmemo [note] edit [<substr>].')
+            sys.exit('Experiment exists. Use exmemo [note] edit [<substr>] or exmemo [note] new [<substr>].')
 
         with rst.open('w') as file:
             file.write(f"""\
@@ -293,9 +293,19 @@ class Workspace:
         subprocess.Popen(cmd)
 
     def launch_terminal(self, dir):
-        term = self.config.get('terminal', os.environ.get('TERMINAL')) or 'xterm'
+        if platform.system() == 'Windows':
+            sys_terminal = 'start cmd.exe'
+        else:
+            sys_terminal = 'xterm'
+
+        term = self.config.get('terminal', os.environ.get('TERMINAL', sys_terminal))
         cmd = shlex.split(term)
-        subprocess.Popen(cmd, cwd=dir, stdout=DEVNULL, stderr=DEVNULL)
+
+        if platform.system() == 'Windows':
+            print(cmd)
+            subprocess.run(cmd, cwd=str(dir))
+        else:
+            subprocess.Popen(cmd, cwd=dir, stdout=DEVNULL, stderr=DEVNULL)
 
     def launch_pdf(self, path):
         pdf = self.config.get('pdf', os.environ.get('PDF')) or 'evince'
